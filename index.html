@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1565c0">
+<link rel="manifest" href="manifest.json">
+<title>Society Dues</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#17202a}
+header{background:#1565c0;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
+h1{font-size:22px;margin:0 0 5px}.sub{opacity:.9;font-size:14px}
+main{max-width:760px;margin:auto;padding:14px 12px 90px}
+nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex;z-index:10}
+nav button{flex:1;border:0;background:white;padding:11px 2px;font-size:12px;color:#555}
+nav button.active{color:#1565c0;font-weight:bold}
+.card{background:white;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 1px 5px #0001}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{font-size:13px;color:#666}.value{font-size:22px;font-weight:bold;margin-top:5px}
+input,select,button{font:inherit}input,select{width:100%;padding:11px;border:1px solid #ccd2d8;border-radius:9px;background:white}
+.btn{border:0;border-radius:9px;padding:10px 13px;background:#1565c0;color:white}.btn.secondary{background:#e8eef7;color:#1565c0}
+.flat{display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #eee}.flatinfo{flex:1}.flatno{font-weight:bold}.small{font-size:12px;color:#777}
+.badge{padding:6px 9px;border-radius:15px;font-size:12px}.paid{background:#e5f5e9;color:#19733a}.unpaid{background:#fde9e9;color:#b42318}
+.row{display:flex;gap:8px;align-items:center}.section-title{font-size:18px;font-weight:bold;margin:8px 0 12px}.notice{padding:10px;border-radius:9px;background:#fff7db;margin:10px 0;font-size:13px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header><h1>🏢 Society Dues</h1><div class="sub">40 flats • ₹2,500 monthly dues</div></header>
+<main id="app"></main>
+<nav>
+<button data-page="dashboard" class="active">🏠<br>Dashboard</button>
+<button data-page="dues">💰<br>Dues</button>
+<button data-page="residents">👤<br>Residents</button>
+<button data-page="funds">💵<br>Funds</button>
+<button data-page="reports">📊<br>Reports</button>
+</nav>
+<script>
+const KEY="society_dues_online_v1";
+const flats=[...Array.from({length:6},(_,i)=>[..."ABCDEF"].map(x=>(i+1)+x)).flat(),..."ABCD".map(x=>"7"+x)];
+const currentMonth=()=>new Date().toISOString().slice(0,7);
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{residents:{},payments:{},funds:{}};
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function pay(f,m){let k=f+"_"+m;if(!data.payments[k])data.payments[k]={status:"Unpaid",date:"",mode:"UPI"};return data.payments[k]}
+function month(){return document.getElementById("month")?.value||currentMonth()}
+function monthBox(){let y=new Date().getFullYear(),a=[];for(let yy=y-1;yy<=y+1;yy++)for(let m=1;m<=12;m++)a.push(`${yy}-${String(m).padStart(2,"0")}`);return `<div class="card"><b>Month</b><select id="month">${a.map(x=>`<option ${x==currentMonth()?"selected":""}>${x}</option>`).join("")}</select></div>`}
+function dash(){
+let m=month(),ps=flats.map(f=>pay(f,m)),p=ps.filter(x=>x.status=="Paid").length;
+let corpus=+(data.funds[m]?.corpus||0),builder=+(data.funds[m]?.builder||0);
+return monthBox()+`<div class="grid">
+<div class="card"><div class="metric">Total Flats</div><div class="value">40</div></div>
+<div class="card"><div class="metric">Paid</div><div class="value">${p}</div></div>
+<div class="card"><div class="metric">Unpaid</div><div class="value">${40-p}</div></div>
+<div class="card"><div class="metric">Dues Collected</div><div class="value">₹${(p*2500).toLocaleString()}</div></div>
+<div class="card"><div class="metric">Dues Pending</div><div class="value">₹${((40-p)*2500).toLocaleString()}</div></div>
+<div class="card"><div class="metric">Corpus Fund</div><div class="value">₹${corpus.toLocaleString()}</div></div>
+<div class="card"><div class="metric">Builder Payment</div><div class="value">₹${builder.toLocaleString()}</div></div>
+</div><div class="card"><div class="section-title">Unpaid Flats</div>${flats.filter(f=>pay(f,m).status!="Paid").map(f=>`<div class="flat"><div class="flatinfo"><b>${f}</b><div class="small">${data.residents[f]||"Resident not entered"}</div></div><span class="badge unpaid">Unpaid</span></div>`).join("")||"<p>All flats paid.</p>"}</div>`
+}
+function dues(){
+let m=month();return monthBox()+`<div class="card"><div class="notice">Monthly maintenance: ₹2,500 per flat.</div>${flats.map(f=>{let p=pay(f,m);return `<div class="flat"><div class="flatinfo"><b>${f}</b><div class="small">${data.residents[f]||"Resident not entered"}</div></div><span class="badge ${p.status=="Paid"?"paid":"unpaid"}">${p.status}</span><button class="btn ${p.status=="Paid"?"secondary":""}" onclick="toggle('${f}')">${p.status=="Paid"?"Paid":"Mark Paid"}</button></div>`}).join("")}</div>`
+}
+function residents(){return `<div class="card"><div class="section-title">Resident / Owner Details</div>${flats.map(f=>`<div class="row" style="margin:8px 0"><b style="min-width:36px">${f}</b><input id="r${f}" value="${(data.residents[f]||"").replaceAll('"',"&quot;")}" placeholder="Name"><button class="btn" onclick="resident('${f}')">Save</button></div>`).join("")}</div>`}
+function funds(){
+let m=month(),f=data.funds[m]||{};
+return monthBox()+`<div class="card"><div class="section-title">Additional Entries</div>
+<label>1. Corpus Fund</label><input id="corpus" type="number" min="0" value="${f.corpus||""}" placeholder="Amount">
+<br><br><label>2. Payment to Builder</label><input id="builder" type="number" min="0" value="${f.builder||""}" placeholder="Amount">
+<br><br><label>Notes</label><input id="notes" value="${f.notes||""}" placeholder="Optional">
+<br><br><button class="btn" onclick="fundsave()">Save</button>
+<div class="notice">Corpus Fund and Builder Payment are separate from monthly maintenance dues.</div></div>`
+}
+function reports(){
+let months=[...new Set(Object.keys(data.payments).map(k=>k.split("_").pop()))].sort().reverse();
+return `<div class="card"><div class="section-title">Monthly Reports</div>${months.map(m=>{let p=flats.map(f=>pay(f,m)).filter(x=>x.status=="Paid").length;return `<div class="flat"><div class="flatinfo"><b>${m}</b><div class="small">${p} paid • ${40-p} unpaid</div></div><b>₹${(p*2500).toLocaleString()}</b></div>`}).join("")||"<p>No payment history yet.</p>"}</div>
+<div class="card"><div class="section-title">Backup / Restore</div><button class="btn" onclick="backup()">Download Backup</button> <button class="btn secondary" onclick="document.getElementById('file').click()">Restore</button><input id="file" type="file" accept=".json" class="hidden" onchange="restore(event)"></div>`
+}
+function render(page="dashboard"){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page==page));document.getElementById("app").innerHTML=({dashboard:dash,dues,residents,funds,reports}[page])();document.getElementById("month")?.addEventListener("change",()=>render(page))}
+function toggle(f){let p=pay(f,month());p.status=p.status=="Paid"?"Unpaid":"Paid";p.date=p.status=="Paid"?new Date().toLocaleDateString("en-IN"):"";save();render("dues")}
+function resident(f){data.residents[f]=document.getElementById("r"+f).value.trim();save();render("residents")}
+function fundsave(){let m=month();data.funds[m]={corpus:+(document.getElementById("corpus").value||0),builder:+(document.getElementById("builder").value||0),notes:document.getElementById("notes").value};save();render("funds")}
+function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="society_dues_backup.json";a.click()}
+function restore(e){let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();render();alert("Backup restored")}catch{alert("Invalid backup")}};r.readAsText(e.target.files[0])}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>render(b.dataset.page));render();
+</script>
+</body>
+</html>
