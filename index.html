@@ -35,8 +35,12 @@ input,select,button{font:inherit}input,select{width:100%;padding:11px;border:1px
 <button data-page="reports">📊<br>Reports</button>
 </nav>
 <script>
-const KEY="society_dues_online_v1";
-const flats=[...Array.from({length:6},(_,i)=>[..."ABCDEF"].map(x=>(i+1)+x)).flat(),..."ABCD".map(x=>"7"+x)];
+const KEY="society_dues_online_v2";
+const flats = [];
+for (let floor = 1; floor <= 6; floor++) {
+  for (const letter of ["A","B","C","D","E","F"]) flats.push(floor + letter);
+}
+for (const letter of ["A","B","C","D"]) flats.push("7" + letter);
 const currentMonth=()=>new Date().toISOString().slice(0,7);
 let data=JSON.parse(localStorage.getItem(KEY)||"null")||{residents:{},payments:{},funds:{}};
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
