@@ -34,7 +34,26 @@ function pay(f,m){let k=f+"_"+m;if(!data.payments[k])data.payments[k]={status:"U
 function fund(f,m){let k=f+"_"+m;if(!data.funds[k])data.funds[k]={corpusActual:0,corpusPaid:0,builderActual:0,builderPaid:0};return data.funds[k]}
 function months(){let y=new Date().getFullYear(),a=[];for(let yy=y-1;yy<=y+1;yy++)for(let m=1;m<=12;m++)a.push(`${yy}-${String(m).padStart(2,"0")}`);return a}
 function monthBox(){return `<div class="card"><b>Period</b><select id="month">${months().map(x=>`<option ${x==nowMonth()?"selected":""}>${x}</option>`).join("")}</select></div>`}
-function dashboard(){let m=month(),p=flats.filter(f=>pay(f,m).status=="Paid").length,ca=0,cp=0,ba=0,bp=0;flats.forEach(f=>{let x=fund(f,m);ca+=+x.corpusActual;cp+=+x.corpusPaid;ba+=+x.builderActual;bp+=+x.builderPaid});return monthBox()+`<div class="grid">
+function dashboard(){
+ let m=month(), selected=document.getElementById("flatSelect")?.value||flats[0];
+ let p=flats.filter(f=>pay(f,m).status=="Paid").length,ca=0,cp=0,ba=0,bp=0;
+ flats.forEach(f=>{let x=fund(f,m);ca+=+x.corpusActual;cp+=+x.corpusPaid;ba+=+x.builderActual;bp+=+x.builderPaid});
+ let sp=pay(selected,m), sf=fund(selected,m);
+ let societyUnpaid=sp.status=="Paid"?0:2500;
+ let corpusUnpaid=Math.max(0,(+sf.corpusActual||0)-(+sf.corpusPaid||0));
+ let builderUnpaid=Math.max(0,(+sf.builderActual||0)-(+sf.builderPaid||0));
+ let totalUnpaid=societyUnpaid+corpusUnpaid+builderUnpaid;
+ return monthBox()+`<div class="card">
+ <div class="title">Check Total Unpaid for a Flat</div>
+ <select id="flatSelect">${flats.map(f=>`<option ${f==selected?"selected":""}>${f}</option>`).join("")}</select>
+ <div class="muted" style="margin-top:7px">${data.residents[selected]||"Resident not entered"}</div>
+ </div>
+ <div class="grid">
+ <div class="card"><div class="metric">Total Unpaid — ${selected}</div><div class="value">${money(totalUnpaid)}</div></div>
+ <div class="card"><div class="metric">Pending Society Fee</div><div class="value">${money(societyUnpaid)}</div></div>
+ <div class="card"><div class="metric">Corpus Fund Unpaid</div><div class="value">${money(corpusUnpaid)}</div></div>
+ <div class="card"><div class="metric">Builder Unpaid</div><div class="value">${money(builderUnpaid)}</div></div>
+ </div><div class="grid">
 <div class="card"><div class="metric">Total Flats</div><div class="value">40</div></div><div class="card"><div class="metric">Maintenance Paid</div><div class="value">${p}/40</div></div>
 <div class="card"><div class="metric">Maintenance Collected</div><div class="value">${money(p*2500)}</div></div><div class="card"><div class="metric">Maintenance Pending</div><div class="value">${money((40-p)*2500)}</div></div>
 <div class="card"><div class="metric">Corpus Actual</div><div class="value">${money(ca)}</div></div><div class="card"><div class="metric">Corpus Paid</div><div class="value">${money(cp)}</div></div>
@@ -48,7 +67,12 @@ function funds(){let m=month(),ca=0,cp=0,ba=0,bp=0;flats.forEach(f=>{let x=fund(
 <div class="table-wrap"><table class="fundtable"><thead><tr><th>Flat</th><th>Carpet</th><th>Corpus Actual</th><th>Corpus Paid</th><th>Corpus Unpaid</th><th>Builder Actual</th><th>Builder Paid</th><th>Builder Unpaid</th></tr></thead><tbody>
 ${flats.map(f=>{let x=fund(f,m),cu=+x.corpusActual-+x.corpusPaid,bu=+x.builderActual-+x.builderPaid;return `<tr><td><b>${f}</b></td><td>${data.carpet[f]||"-"}</td><td><input id="ca${f}" type="number" min="0" step=".01" value="${x.corpusActual||""}"></td><td><input id="cp${f}" type="number" min="0" step=".01" value="${x.corpusPaid||""}"></td><td class="${cu>0?"unpaid":"paid"}">${money(cu)}</td><td><input id="ba${f}" type="number" min="0" step=".01" value="${x.builderActual||""}"></td><td><input id="bp${f}" type="number" min="0" step=".01" value="${x.builderPaid||""}"></td><td class="${bu>0?"unpaid":"paid"}">${money(bu)}</td></tr>`}).join("")}</tbody></table></div><br><button class="btn" onclick="saveFunds()">Save All Fund Entries</button></div>`}
 function reports(){let m=month(),cu=[],bu=[];flats.forEach(f=>{let x=fund(f,m),c=+x.corpusActual-+x.corpusPaid,b=+x.builderActual-+x.builderPaid;if(c>0)cu.push(f+" — "+money(c));if(b>0)bu.push(f+" — "+money(b))});return monthBox()+`<div class="card"><div class="title">Unpaid Funds — ${m}</div><b>Corpus Fund Unpaid</b>${cu.length?cu.map(x=>`<p>${x}</p>`).join(""):"<p>None</p>"}<hr><b>Payment to Builder Unpaid</b>${bu.length?bu.map(x=>`<p>${x}</p>`).join(""):"<p>None</p>"}</div><div class="card"><div class="title">Backup / Restore</div><button class="btn" onclick="backup()">Download Backup</button> <button class="btn secondary" onclick="document.getElementById('file').click()">Restore</button><input id="file" type="file" accept=".json" class="hidden" onchange="restore(event)"></div>`}
-function render(page="dashboard"){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page==page));document.getElementById("app").innerHTML=({dashboard,dues,residents,funds,reports}[page])();document.getElementById("month")?.addEventListener("change",()=>render(page))}
+function render(page="dashboard"){
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page==page));
+ document.getElementById("app").innerHTML=({dashboard,dues,residents,funds,reports}[page])();
+ document.getElementById("month")?.addEventListener("change",()=>render(page));
+ document.getElementById("flatSelect")?.addEventListener("change",()=>render("dashboard"));
+}
 function togglePay(f){let p=pay(f,month());p.status=p.status=="Paid"?"Unpaid":"Paid";p.date=p.status=="Paid"?new Date().toLocaleDateString("en-IN"):"";save();render("dues")}
 function saveResident(f){data.residents[f]=document.getElementById("r"+f).value.trim();data.carpet[f]=document.getElementById("a"+f).value;save();render("residents")}
 function saveFunds(){let m=month();flats.forEach(f=>{let x=fund(f,m);x.corpusActual=+(document.getElementById("ca"+f).value||0);x.corpusPaid=+(document.getElementById("cp"+f).value||0);x.builderActual=+(document.getElementById("ba"+f).value||0);x.builderPaid=+(document.getElementById("bp"+f).value||0)});save();render("funds");alert("Fund entries saved for "+m)}
