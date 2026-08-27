@@ -1,90 +1,58 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#1565c0">
-<link rel="manifest" href="manifest.json">
+<!doctype html><html><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#1565c0"><link rel="manifest" href="manifest.json">
 <title>Society Dues</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f6f8;color:#17202a}
-header{background:#1565c0;color:white;padding:18px 16px;position:sticky;top:0;z-index:5}
-h1{font-size:22px;margin:0 0 5px}.sub{opacity:.9;font-size:14px}
-main{max-width:760px;margin:auto;padding:14px 12px 90px}
-nav{position:fixed;bottom:0;left:0;right:0;background:white;border-top:1px solid #ddd;display:flex;z-index:10}
-nav button{flex:1;border:0;background:white;padding:11px 2px;font-size:12px;color:#555}
-nav button.active{color:#1565c0;font-weight:bold}
-.card{background:white;border-radius:14px;padding:16px;margin:10px 0;box-shadow:0 1px 5px #0001}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{font-size:13px;color:#666}.value{font-size:22px;font-weight:bold;margin-top:5px}
-input,select,button{font:inherit}input,select{width:100%;padding:11px;border:1px solid #ccd2d8;border-radius:9px;background:white}
-.btn{border:0;border-radius:9px;padding:10px 13px;background:#1565c0;color:white}.btn.secondary{background:#e8eef7;color:#1565c0}
-.flat{display:flex;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #eee}.flatinfo{flex:1}.flatno{font-weight:bold}.small{font-size:12px;color:#777}
-.badge{padding:6px 9px;border-radius:15px;font-size:12px}.paid{background:#e5f5e9;color:#19733a}.unpaid{background:#fde9e9;color:#b42318}
-.row{display:flex;gap:8px;align-items:center}.section-title{font-size:18px;font-weight:bold;margin:8px 0 12px}.notice{padding:10px;border-radius:9px;background:#fff7db;margin:10px 0;font-size:13px}
-.hidden{display:none}
-</style>
-</head>
-<body>
-<header><h1>🏢 Society Dues</h1><div class="sub">40 flats • ₹2,500 monthly dues</div></header>
+*{box-sizing:border-box}body{margin:0;font-family:Arial;background:#f4f6f8;color:#17202a}
+header{background:#1565c0;color:#fff;padding:17px 15px;position:sticky;top:0;z-index:5}
+h1{font-size:21px;margin:0 0 4px}.sub{font-size:13px}
+main{max-width:900px;margin:auto;padding:12px 10px 90px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #ddd;display:flex;z-index:10}
+nav button{flex:1;border:0;background:#fff;padding:10px 2px;font-size:11px;color:#555}nav button.active{color:#1565c0;font-weight:bold}
+.card{background:#fff;border-radius:14px;padding:15px;margin:9px 0;box-shadow:0 1px 5px #0001}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{font-size:12px;color:#666}.value{font-size:20px;font-weight:bold;margin-top:4px}
+input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #cbd2d9;border-radius:8px;background:#fff}
+.btn{border:0;border-radius:8px;padding:10px 12px;background:#1565c0;color:#fff}.btn.secondary{background:#e8eef7;color:#1565c0}
+.row{display:flex;gap:7px;align-items:center}.row>*{flex:1}.row .label{flex:0 0 45px}
+.title{font-size:18px;font-weight:bold;margin:4px 0 12px}.notice{padding:10px;border-radius:8px;background:#fff7db;margin:9px 0;font-size:13px}
+.table-wrap{overflow:auto}.fundtable{width:100%;border-collapse:collapse;min-width:850px}.fundtable th,.fundtable td{padding:7px;border-bottom:1px solid #eee;text-align:left;font-size:12px}.fundtable th{background:#f5f7f9}
+.paid{color:#19733a;font-weight:bold}.unpaid{color:#b42318;font-weight:bold}.hidden{display:none}
+</style></head><body>
+<header><h1>🏢 Society Dues</h1><div class="sub">40 flats • Maintenance ₹2,500/month</div></header>
 <main id="app"></main>
-<nav>
-<button data-page="dashboard" class="active">🏠<br>Dashboard</button>
-<button data-page="dues">💰<br>Dues</button>
-<button data-page="residents">👤<br>Residents</button>
-<button data-page="funds">💵<br>Funds</button>
-<button data-page="reports">📊<br>Reports</button>
-</nav>
+<nav><button data-page="dashboard">🏠<br>Dashboard</button><button data-page="dues">💰<br>Dues</button><button data-page="residents">👤<br>Residents</button><button data-page="funds">💵<br>Funds</button><button data-page="reports">📊<br>Reports</button></nav>
 <script>
-const KEY="society_dues_online_v2";
-const flats = [];
-for (let floor = 1; floor <= 6; floor++) {
-  for (const letter of ["A","B","C","D","E","F"]) flats.push(floor + letter);
-}
-for (const letter of ["A","B","C","D"]) flats.push("7" + letter);
-const currentMonth=()=>new Date().toISOString().slice(0,7);
-let data=JSON.parse(localStorage.getItem(KEY)||"null")||{residents:{},payments:{},funds:{}};
+const KEY="society_dues_v4", flats=[];
+for(let f=1;f<=6;f++) for(const l of ["A","B","C","D","E","F"]) flats.push(f+l);
+for(const l of ["A","B","C","D"]) flats.push("7"+l);
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{residents:{},carpet:{},payments:{},funds:{}};
+const nowMonth=()=>new Date().toISOString().slice(0,7);
+const month=()=>document.getElementById("month")?.value||nowMonth();
+const money=n=>"₹"+Number(n||0).toLocaleString("en-IN",{maximumFractionDigits:2});
 function save(){localStorage.setItem(KEY,JSON.stringify(data))}
-function pay(f,m){let k=f+"_"+m;if(!data.payments[k])data.payments[k]={status:"Unpaid",date:"",mode:"UPI"};return data.payments[k]}
-function month(){return document.getElementById("month")?.value||currentMonth()}
-function monthBox(){let y=new Date().getFullYear(),a=[];for(let yy=y-1;yy<=y+1;yy++)for(let m=1;m<=12;m++)a.push(`${yy}-${String(m).padStart(2,"0")}`);return `<div class="card"><b>Month</b><select id="month">${a.map(x=>`<option ${x==currentMonth()?"selected":""}>${x}</option>`).join("")}</select></div>`}
-function dash(){
-let m=month(),ps=flats.map(f=>pay(f,m)),p=ps.filter(x=>x.status=="Paid").length;
-let corpus=+(data.funds[m]?.corpus||0),builder=+(data.funds[m]?.builder||0);
-return monthBox()+`<div class="grid">
-<div class="card"><div class="metric">Total Flats</div><div class="value">40</div></div>
-<div class="card"><div class="metric">Paid</div><div class="value">${p}</div></div>
-<div class="card"><div class="metric">Unpaid</div><div class="value">${40-p}</div></div>
-<div class="card"><div class="metric">Dues Collected</div><div class="value">₹${(p*2500).toLocaleString()}</div></div>
-<div class="card"><div class="metric">Dues Pending</div><div class="value">₹${((40-p)*2500).toLocaleString()}</div></div>
-<div class="card"><div class="metric">Corpus Fund</div><div class="value">₹${corpus.toLocaleString()}</div></div>
-<div class="card"><div class="metric">Builder Payment</div><div class="value">₹${builder.toLocaleString()}</div></div>
-</div><div class="card"><div class="section-title">Unpaid Flats</div>${flats.filter(f=>pay(f,m).status!="Paid").map(f=>`<div class="flat"><div class="flatinfo"><b>${f}</b><div class="small">${data.residents[f]||"Resident not entered"}</div></div><span class="badge unpaid">Unpaid</span></div>`).join("")||"<p>All flats paid.</p>"}</div>`
-}
-function dues(){
-let m=month();return monthBox()+`<div class="card"><div class="notice">Monthly maintenance: ₹2,500 per flat.</div>${flats.map(f=>{let p=pay(f,m);return `<div class="flat"><div class="flatinfo"><b>${f}</b><div class="small">${data.residents[f]||"Resident not entered"}</div></div><span class="badge ${p.status=="Paid"?"paid":"unpaid"}">${p.status}</span><button class="btn ${p.status=="Paid"?"secondary":""}" onclick="toggle('${f}')">${p.status=="Paid"?"Paid":"Mark Paid"}</button></div>`}).join("")}</div>`
-}
-function residents(){return `<div class="card"><div class="section-title">Resident / Owner Details</div>${flats.map(f=>`<div class="row" style="margin:8px 0"><b style="min-width:36px">${f}</b><input id="r${f}" value="${(data.residents[f]||"").replaceAll('"',"&quot;")}" placeholder="Name"><button class="btn" onclick="resident('${f}')">Save</button></div>`).join("")}</div>`}
-function funds(){
-let m=month(),f=data.funds[m]||{};
-return monthBox()+`<div class="card"><div class="section-title">Additional Entries</div>
-<label>1. Corpus Fund</label><input id="corpus" type="number" min="0" value="${f.corpus||""}" placeholder="Amount">
-<br><br><label>2. Payment to Builder</label><input id="builder" type="number" min="0" value="${f.builder||""}" placeholder="Amount">
-<br><br><label>Notes</label><input id="notes" value="${f.notes||""}" placeholder="Optional">
-<br><br><button class="btn" onclick="fundsave()">Save</button>
-<div class="notice">Corpus Fund and Builder Payment are separate from monthly maintenance dues.</div></div>`
-}
-function reports(){
-let months=[...new Set(Object.keys(data.payments).map(k=>k.split("_").pop()))].sort().reverse();
-return `<div class="card"><div class="section-title">Monthly Reports</div>${months.map(m=>{let p=flats.map(f=>pay(f,m)).filter(x=>x.status=="Paid").length;return `<div class="flat"><div class="flatinfo"><b>${m}</b><div class="small">${p} paid • ${40-p} unpaid</div></div><b>₹${(p*2500).toLocaleString()}</b></div>`}).join("")||"<p>No payment history yet.</p>"}</div>
-<div class="card"><div class="section-title">Backup / Restore</div><button class="btn" onclick="backup()">Download Backup</button> <button class="btn secondary" onclick="document.getElementById('file').click()">Restore</button><input id="file" type="file" accept=".json" class="hidden" onchange="restore(event)"></div>`
-}
-function render(page="dashboard"){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page==page));document.getElementById("app").innerHTML=({dashboard:dash,dues,residents,funds,reports}[page])();document.getElementById("month")?.addEventListener("change",()=>render(page))}
-function toggle(f){let p=pay(f,month());p.status=p.status=="Paid"?"Unpaid":"Paid";p.date=p.status=="Paid"?new Date().toLocaleDateString("en-IN"):"";save();render("dues")}
-function resident(f){data.residents[f]=document.getElementById("r"+f).value.trim();save();render("residents")}
-function fundsave(){let m=month();data.funds[m]={corpus:+(document.getElementById("corpus").value||0),builder:+(document.getElementById("builder").value||0),notes:document.getElementById("notes").value};save();render("funds")}
+function pay(f,m){let k=f+"_"+m;if(!data.payments[k])data.payments[k]={status:"Unpaid",date:""};return data.payments[k]}
+function fund(f,m){let k=f+"_"+m;if(!data.funds[k])data.funds[k]={corpusActual:0,corpusPaid:0,builderActual:0,builderPaid:0};return data.funds[k]}
+function months(){let y=new Date().getFullYear(),a=[];for(let yy=y-1;yy<=y+1;yy++)for(let m=1;m<=12;m++)a.push(`${yy}-${String(m).padStart(2,"0")}`);return a}
+function monthBox(){return `<div class="card"><b>Period</b><select id="month">${months().map(x=>`<option ${x==nowMonth()?"selected":""}>${x}</option>`).join("")}</select></div>`}
+function dashboard(){let m=month(),p=flats.filter(f=>pay(f,m).status=="Paid").length,ca=0,cp=0,ba=0,bp=0;flats.forEach(f=>{let x=fund(f,m);ca+=+x.corpusActual;cp+=+x.corpusPaid;ba+=+x.builderActual;bp+=+x.builderPaid});return monthBox()+`<div class="grid">
+<div class="card"><div class="metric">Total Flats</div><div class="value">40</div></div><div class="card"><div class="metric">Maintenance Paid</div><div class="value">${p}/40</div></div>
+<div class="card"><div class="metric">Maintenance Collected</div><div class="value">${money(p*2500)}</div></div><div class="card"><div class="metric">Maintenance Pending</div><div class="value">${money((40-p)*2500)}</div></div>
+<div class="card"><div class="metric">Corpus Actual</div><div class="value">${money(ca)}</div></div><div class="card"><div class="metric">Corpus Paid</div><div class="value">${money(cp)}</div></div>
+<div class="card"><div class="metric">Builder Actual</div><div class="value">${money(ba)}</div></div><div class="card"><div class="metric">Builder Paid</div><div class="value">${money(bp)}</div></div></div>`}
+function dues(){let m=month();return monthBox()+`<div class="card"><div class="notice">Maintenance dues: ₹2,500 per flat per month.</div>${flats.map(f=>{let p=pay(f,m);return `<div class="row" style="padding:10px 0;border-bottom:1px solid #eee"><b class="label">${f}</b><div>${data.residents[f]||"Resident not entered"}<br><small>${p.status}</small></div><button class="btn ${p.status=="Paid"?"secondary":""}" onclick="togglePay('${f}')">${p.status=="Paid"?"Paid":"Mark Paid"}</button></div>`}).join("")}</div>`}
+function residents(){return `<div class="card"><div class="title">Resident / Owner & Carpet Area</div>${flats.map(f=>`<div class="row" style="margin:7px 0"><b class="label">${f}</b><input id="r${f}" value="${String(data.residents[f]||"").replaceAll('"',"&quot;")}" placeholder="Resident"><input id="a${f}" type="number" min="0" step=".01" value="${data.carpet[f]||""}" placeholder="Carpet sq.ft"><button class="btn" onclick="saveResident('${f}')">Save</button></div>`).join("")}<div class="notice">Enter each flat's carpet area. Fund amounts can differ for every flat.</div></div>`}
+function funds(){let m=month(),ca=0,cp=0,ba=0,bp=0;flats.forEach(f=>{let x=fund(f,m);ca+=+x.corpusActual;cp+=+x.corpusPaid;ba+=+x.builderActual;bp+=+x.builderPaid});return monthBox()+`<div class="grid">
+<div class="card"><div class="metric">Corpus Fund Actual</div><div class="value">${money(ca)}</div></div><div class="card"><div class="metric">Corpus Fund Paid</div><div class="value">${money(cp)}</div></div><div class="card"><div class="metric">Corpus Fund Unpaid</div><div class="value">${money(ca-cp)}</div></div>
+<div class="card"><div class="metric">Builder Actual</div><div class="value">${money(ba)}</div></div><div class="card"><div class="metric">Builder Paid</div><div class="value">${money(bp)}</div></div><div class="card"><div class="metric">Builder Unpaid</div><div class="value">${money(ba-bp)}</div></div></div>
+<div class="card"><div class="title">Fund Entries — ${m}</div><div class="notice">Each flat has separate amounts. Enter Actual and Paid. Unpaid is automatically Actual − Paid. Carpet area is shown for reference.</div>
+<div class="table-wrap"><table class="fundtable"><thead><tr><th>Flat</th><th>Carpet</th><th>Corpus Actual</th><th>Corpus Paid</th><th>Corpus Unpaid</th><th>Builder Actual</th><th>Builder Paid</th><th>Builder Unpaid</th></tr></thead><tbody>
+${flats.map(f=>{let x=fund(f,m),cu=+x.corpusActual-+x.corpusPaid,bu=+x.builderActual-+x.builderPaid;return `<tr><td><b>${f}</b></td><td>${data.carpet[f]||"-"}</td><td><input id="ca${f}" type="number" min="0" step=".01" value="${x.corpusActual||""}"></td><td><input id="cp${f}" type="number" min="0" step=".01" value="${x.corpusPaid||""}"></td><td class="${cu>0?"unpaid":"paid"}">${money(cu)}</td><td><input id="ba${f}" type="number" min="0" step=".01" value="${x.builderActual||""}"></td><td><input id="bp${f}" type="number" min="0" step=".01" value="${x.builderPaid||""}"></td><td class="${bu>0?"unpaid":"paid"}">${money(bu)}</td></tr>`}).join("")}</tbody></table></div><br><button class="btn" onclick="saveFunds()">Save All Fund Entries</button></div>`}
+function reports(){let m=month(),cu=[],bu=[];flats.forEach(f=>{let x=fund(f,m),c=+x.corpusActual-+x.corpusPaid,b=+x.builderActual-+x.builderPaid;if(c>0)cu.push(f+" — "+money(c));if(b>0)bu.push(f+" — "+money(b))});return monthBox()+`<div class="card"><div class="title">Unpaid Funds — ${m}</div><b>Corpus Fund Unpaid</b>${cu.length?cu.map(x=>`<p>${x}</p>`).join(""):"<p>None</p>"}<hr><b>Payment to Builder Unpaid</b>${bu.length?bu.map(x=>`<p>${x}</p>`).join(""):"<p>None</p>"}</div><div class="card"><div class="title">Backup / Restore</div><button class="btn" onclick="backup()">Download Backup</button> <button class="btn secondary" onclick="document.getElementById('file').click()">Restore</button><input id="file" type="file" accept=".json" class="hidden" onchange="restore(event)"></div>`}
+function render(page="dashboard"){document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page==page));document.getElementById("app").innerHTML=({dashboard,dues,residents,funds,reports}[page])();document.getElementById("month")?.addEventListener("change",()=>render(page))}
+function togglePay(f){let p=pay(f,month());p.status=p.status=="Paid"?"Unpaid":"Paid";p.date=p.status=="Paid"?new Date().toLocaleDateString("en-IN"):"";save();render("dues")}
+function saveResident(f){data.residents[f]=document.getElementById("r"+f).value.trim();data.carpet[f]=document.getElementById("a"+f).value;save();render("residents")}
+function saveFunds(){let m=month();flats.forEach(f=>{let x=fund(f,m);x.corpusActual=+(document.getElementById("ca"+f).value||0);x.corpusPaid=+(document.getElementById("cp"+f).value||0);x.builderActual=+(document.getElementById("ba"+f).value||0);x.builderPaid=+(document.getElementById("bp"+f).value||0)});save();render("funds");alert("Fund entries saved for "+m)}
 function backup(){let b=new Blob([JSON.stringify(data,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(b);a.download="society_dues_backup.json";a.click()}
 function restore(e){let r=new FileReader();r.onload=()=>{try{data=JSON.parse(r.result);save();render();alert("Backup restored")}catch{alert("Invalid backup")}};r.readAsText(e.target.files[0])}
 document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>render(b.dataset.page));render();
-</script>
-</body>
-</html>
+</script></body></html>
