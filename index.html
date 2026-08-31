@@ -48,9 +48,11 @@ function months(){
  return a;
 }
 function monthBox(){
- let opts=months(), nm=nowMonth();
+ let opts=months();
+ let previous=document.getElementById("month")?.value;
+ let nm=opts.includes(previous)?previous:nowMonth();
  if(!opts.includes(nm))nm=opts[0];
- return `<div class="card"><b>Period</b><select id="month">${opts.map(x=>`<option ${x==nm?"selected":""}>${x}</option>`).join("")}</select></div>`;
+ return `<div class="card"><b>Period</b><select id="month">${opts.map(x=>`<option value="${x}" ${x==nm?"selected":""}>${x}</option>`).join("")}</select></div>`;
 }
 function dashboard(){
  let m=month(), selected=document.getElementById("flatSelect")?.value||flats[0];
